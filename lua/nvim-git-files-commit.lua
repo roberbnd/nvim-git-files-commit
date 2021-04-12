@@ -41,12 +41,12 @@ local function open_window()
     col = col
   }
 
-  local boder_lines = { '╔' .. string.rep('=', win_width) .. '╗' }
-  local middle_lines = '║' .. string.rep(' ', win_width) .. '║'
+  local border_lines = { '╔' .. string.rep('=', win_width) .. '╗' }
+  local middle_line = '║' .. string.rep(' ', win_width) .. '║'
   for i=1, win_height do
     table.insert(border_lines, middle_line)
   end
-  table.insert(boder_lines, '╚' .. string.rep('=', win_width) .. '╝')
+  table.insert(border_lines, '╚' .. string.rep('=', win_width) .. '╝')
   api.nvim_buf_set_lines(border_buf, 0, -1, false, border_lines)
 
   local border_win = api.nvim_open_win(border_buf, true, border_opts)
@@ -62,28 +62,28 @@ end
 local function update_view(direction)
   -- Is nice to prevent user from editing interface, so
   -- we should enabled it before updating view and disabled after it
-  api.nvim_buf_set_option(buf, 'modifiable', true)
+  vim.api.nvim_buf_set_option(buf, 'modifiable', true)
   position = position + direction
   if position < 0 then position = 0 end
 
   -- we wil use vim systemlist function which run shell
   -- command and return result as list
-  local result = vim.fn.systemlist('git diff-tree --no-commit-id --name-only -r HEAD')
+  local result = vim.fn.systemlist('git diff-tree --no-commit-id --name-only -r HEAD~'..position)
   if #result == 0 then table.insert(result, '') end
   for k,v in pairs(result) do
     result[k] = '  '..result[k]
   end
 
   api.nvim_buf_set_lines(buf, 1, 2, false, {center('HEAD~'..position)})
-  api.nvim_buf_set_lines(buf, 1, 2, false, result)
+  api.nvim_buf_set_lines(buf, 3, -1, false, result)
 
   api.nvim_buf_add_highlight(buf, -1, 'GitFilesCommitSubHeader', 1, 0, -1)
-  api.nvim_buf_set_option(buf, 'mudifiable', false)
+  api.nvim_buf_set_option(buf, 'modifiable', false)
 end
 
 local function close_window()
   api.nvim_win_close(win, true)
-en
+end
 
 local function open_file()
   local str = api.nvim_get_current_line()
@@ -108,7 +108,7 @@ local function set_mappings()
   }
 
   for k,v in pairs(mappings) do
-    api.nvim_buf_set_keymap(buf, 'n', k, ':lua require"gitFilesCommit".'..v..'<cr>', {
+    api.nvim_buf_set_keymap(buf, 'n', k, ':lua require"nvim-git-files-commit".'..v..'<cr>', {
       nowait = true, noremap = true, silent = true
     })
   end

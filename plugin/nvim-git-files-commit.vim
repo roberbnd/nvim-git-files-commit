@@ -7,7 +7,7 @@ hi def link GitFilesCommitHeader Number
 hi def link GitFilesCommitSubHeader Identifer
 
 "command to run our plugin
-command! GitFilesCommit lua require'gitFilesCommit'.gitFilesCommit()
+command! GitFilesCommit lua require'nvim-git-files-commit'.gitFilesCommit()
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
